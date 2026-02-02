@@ -5,30 +5,28 @@ export const brand = {
   yellow: '#efda82',
   black: '#000000',
   white: '#ffffff',
+  gray: '#888888',
+  darkGray: '#333333',
+  lightGray: '#f5f5f5',
 };
-
-const tintColorLight = brand.coral;
-const tintColorDark = brand.coral;
 
 export default {
   light: {
     text: brand.black,
+    textSecondary: brand.gray,
     background: brand.white,
-    tint: tintColorLight,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-    coral: brand.coral,
-    peach: brand.peach,
-    yellow: brand.yellow,
+    card: brand.lightGray,
+    tint: brand.coral,
+    border: '#e0e0e0',
+    ...brand,
   },
   dark: {
     text: brand.white,
+    textSecondary: brand.gray,
     background: brand.black,
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-    coral: brand.coral,
-    peach: brand.peach,
-    yellow: brand.yellow,
+    card: brand.darkGray,
+    tint: brand.coral,
+    border: '#333333',
+    ...brand,
   },
 };
