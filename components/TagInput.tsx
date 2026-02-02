@@ -31,18 +31,23 @@ export default function TagInput({ tags, onChange, placeholder }: TagInputProps)
 
   return (
     <View style={styles.container}>
-      <View style={styles.tagsContainer}>
-        {tags.map((tag, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.tag}
-            onPress={() => removeTag(index)}
-          >
-            <Text style={styles.tagText}>{tag}</Text>
-            <Text style={styles.tagRemove}>×</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {tags.length > 0 && (
+        <View style={styles.tagsContainer}>
+          {tags.map((tag, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.tag}
+              onPress={() => removeTag(index)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.tagText}>{tag}</Text>
+              <View style={styles.tagRemoveContainer}>
+                <Text style={styles.tagRemove}>×</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
       <View style={styles.inputRow}>
         <TextInput
           style={styles.input}
@@ -54,8 +59,8 @@ export default function TagInput({ tags, onChange, placeholder }: TagInputProps)
           returnKeyType="done"
         />
         {inputValue.trim() && (
-          <TouchableOpacity style={styles.addButton} onPress={addTag}>
-            <Text style={styles.addButtonText}>+</Text>
+          <TouchableOpacity style={styles.addButton} onPress={addTag} activeOpacity={0.8}>
+            <Text style={styles.addButtonText}>ADD</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -65,7 +70,7 @@ export default function TagInput({ tags, onChange, placeholder }: TagInputProps)
 
 const styles = StyleSheet.create({
   container: {
-    gap: 8,
+    gap: 10,
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -75,21 +80,29 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: brand.coral,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 6,
+    backgroundColor: brand.white,
+    borderWidth: 2,
+    borderColor: brand.coral,
+    borderRadius: 4,
+    overflow: 'hidden',
   },
   tagText: {
     fontFamily: 'RobotoMono',
-    fontSize: 13,
-    color: brand.white,
+    fontSize: 12,
+    fontWeight: '600',
+    color: brand.ink,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  tagRemoveContainer: {
+    backgroundColor: brand.coral,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   tagRemove: {
-    fontSize: 16,
+    fontSize: 14,
     color: brand.white,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   inputRow: {
     flexDirection: 'row',
@@ -98,22 +111,26 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontFamily: 'RobotoMono',
-    fontSize: 16,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
+    fontSize: 15,
+    backgroundColor: brand.white,
+    borderRadius: 4,
     padding: 14,
-    color: brand.black,
+    color: brand.ink,
+    borderWidth: 2,
+    borderColor: brand.warmGray,
   },
   addButton: {
-    width: 48,
-    backgroundColor: brand.black,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    backgroundColor: brand.ink,
+    borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addButtonText: {
-    fontSize: 24,
-    color: brand.white,
-    fontWeight: '600',
+    fontFamily: 'RobotoMono',
+    fontSize: 11,
+    fontWeight: '700',
+    color: brand.cream,
+    letterSpacing: 1,
   },
 });

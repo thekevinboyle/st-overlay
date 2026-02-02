@@ -10,10 +10,20 @@ interface FilterSelectorProps {
 
 const filterOrder: FilterName[] = ['none', 'coral-haze', 'vhs-cafe', 'film-grain'];
 
+const filterIcons: Record<FilterName, string> = {
+  'none': '○',
+  'coral-haze': '◐',
+  'vhs-cafe': '▤',
+  'film-grain': '◉',
+};
+
 export default function FilterSelector({ imageUri, selected, onChange }: FilterSelectorProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>FILTERS</Text>
+      <View style={styles.labelRow}>
+        <Text style={styles.label}>FILTERS</Text>
+        <View style={styles.labelLine} />
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -28,6 +38,7 @@ export default function FilterSelector({ imageUri, selected, onChange }: FilterS
               key={filterName}
               style={[styles.filterItem, isSelected && styles.filterItemSelected]}
               onPress={() => onChange(filterName)}
+              activeOpacity={0.7}
             >
               <View style={[styles.thumbnail, isSelected && styles.thumbnailSelected]}>
                 <Image
@@ -44,10 +55,16 @@ export default function FilterSelector({ imageUri, selected, onChange }: FilterS
                     ]}
                   />
                 )}
+                <View style={[styles.iconBadge, isSelected && styles.iconBadgeSelected]}>
+                  <Text style={[styles.iconText, isSelected && styles.iconTextSelected]}>
+                    {filterIcons[filterName]}
+                  </Text>
+                </View>
               </View>
               <Text style={[styles.filterName, isSelected && styles.filterNameSelected]}>
-                {filter.label}
+                {filter.label.toUpperCase()}
               </Text>
+              {isSelected && <View style={styles.selectedDot} />}
             </TouchableOpacity>
           );
         })}
@@ -58,38 +75,49 @@ export default function FilterSelector({ imageUri, selected, onChange }: FilterS
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingVertical: 14,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 14,
+    gap: 10,
   },
   label: {
     fontFamily: 'RobotoMono',
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
     color: brand.gray,
     letterSpacing: 2,
-    marginBottom: 12,
-    paddingHorizontal: 16,
+  },
+  labelLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: brand.warmGray,
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    gap: 12,
+    paddingHorizontal: 14,
+    gap: 14,
   },
   filterItem: {
     alignItems: 'center',
-    opacity: 0.7,
   },
   filterItemSelected: {
-    opacity: 1,
+    // Selected state handled by children
   },
   thumbnail: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
+    width: 72,
+    height: 72,
+    borderRadius: 4,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: brand.warmGray,
+    backgroundColor: brand.warmGray,
   },
   thumbnailSelected: {
     borderColor: brand.coral,
+    borderWidth: 3,
   },
   thumbnailImage: {
     width: '100%',
@@ -102,19 +130,48 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(242, 148, 150, 0.25)',
   },
   vhsOverlay: {
-    backgroundColor: 'rgba(100, 80, 60, 0.3)',
+    backgroundColor: 'rgba(80, 60, 40, 0.35)',
   },
   filmOverlay: {
-    backgroundColor: 'rgba(255, 220, 180, 0.15)',
+    backgroundColor: 'rgba(255, 230, 200, 0.2)',
+  },
+  iconBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: brand.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconBadgeSelected: {
+    backgroundColor: brand.coral,
+  },
+  iconText: {
+    fontSize: 10,
+    color: brand.gray,
+  },
+  iconTextSelected: {
+    color: brand.white,
   },
   filterName: {
     fontFamily: 'RobotoMono',
-    fontSize: 10,
+    fontSize: 9,
+    fontWeight: '600',
     color: brand.gray,
-    marginTop: 6,
+    marginTop: 8,
+    letterSpacing: 0.5,
   },
   filterNameSelected: {
-    color: brand.coral,
-    fontWeight: '600',
+    color: brand.ink,
+  },
+  selectedDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: brand.coral,
+    marginTop: 4,
   },
 });

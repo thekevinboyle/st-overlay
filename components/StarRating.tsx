@@ -10,17 +10,26 @@ interface StarRatingProps {
 export default function StarRating({ rating, onChange, max = 5 }: StarRatingProps) {
   return (
     <View style={styles.container}>
-      {Array.from({ length: max }, (_, i) => (
-        <TouchableOpacity
-          key={i}
-          onPress={() => onChange(i + 1)}
-          style={styles.star}
-        >
-          <Text style={[styles.starText, i < rating && styles.starFilled]}>
-            {i < rating ? '★' : '☆'}
-          </Text>
+      {Array.from({ length: max }, (_, i) => {
+        const isFilled = i < rating;
+        return (
+          <TouchableOpacity
+            key={i}
+            onPress={() => onChange(i + 1)}
+            style={[styles.star, isFilled && styles.starFilled]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.starText, isFilled && styles.starTextFilled]}>
+              {isFilled ? '★' : '☆'}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+      {rating > 0 && (
+        <TouchableOpacity onPress={() => onChange(0)} style={styles.clearButton}>
+          <Text style={styles.clearText}>✕</Text>
         </TouchableOpacity>
-      ))}
+      )}
     </View>
   );
 }
@@ -28,16 +37,34 @@ export default function StarRating({ rating, onChange, max = 5 }: StarRatingProp
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    gap: 4,
+    alignItems: 'center',
+    gap: 2,
   },
   star: {
-    padding: 4,
-  },
-  starText: {
-    fontSize: 24,
-    color: brand.gray,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: brand.warmGray,
+    borderRadius: 4,
   },
   starFilled: {
-    color: brand.coral,
+    backgroundColor: brand.coral,
+  },
+  starText: {
+    fontSize: 20,
+    color: brand.gray,
+  },
+  starTextFilled: {
+    color: brand.white,
+  },
+  clearButton: {
+    marginLeft: 8,
+    padding: 8,
+  },
+  clearText: {
+    fontFamily: 'RobotoMono',
+    fontSize: 12,
+    color: brand.gray,
   },
 });

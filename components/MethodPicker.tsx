@@ -2,15 +2,14 @@ import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-nati
 import { brand } from '@/constants/Colors';
 
 const METHODS = [
-  'V60',
-  'Espresso',
-  'Aeropress',
-  'Chemex',
-  'French Press',
-  'Moka Pot',
-  'Cold Brew',
-  'Pour Over',
-  'Other',
+  { id: 'V60', icon: '▽' },
+  { id: 'Espresso', icon: '◉' },
+  { id: 'Aeropress', icon: '⬡' },
+  { id: 'Chemex', icon: '◇' },
+  { id: 'French Press', icon: '▣' },
+  { id: 'Moka Pot', icon: '△' },
+  { id: 'Cold Brew', icon: '❄' },
+  { id: 'Pour Over', icon: '◎' },
 ];
 
 interface MethodPickerProps {
@@ -25,19 +24,25 @@ export default function MethodPicker({ value, onChange }: MethodPickerProps) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
     >
-      {METHODS.map((method) => (
-        <TouchableOpacity
-          key={method}
-          style={[styles.chip, value === method && styles.chipSelected]}
-          onPress={() => onChange(method)}
-        >
-          <Text
-            style={[styles.chipText, value === method && styles.chipTextSelected]}
+      {METHODS.map((method) => {
+        const isSelected = value === method.id;
+        return (
+          <TouchableOpacity
+            key={method.id}
+            style={[styles.chip, isSelected && styles.chipSelected]}
+            onPress={() => onChange(method.id)}
+            activeOpacity={0.7}
           >
-            {method}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Text style={[styles.chipIcon, isSelected && styles.chipIconSelected]}>
+              {method.icon}
+            </Text>
+            <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+              {method.id}
+            </Text>
+            {isSelected && <View style={styles.selectedIndicator} />}
+          </TouchableOpacity>
+        );
+      })}
     </ScrollView>
   );
 }
@@ -45,28 +50,50 @@ export default function MethodPicker({ value, onChange }: MethodPickerProps) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10,
     paddingVertical: 4,
   },
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: brand.white,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: brand.warmGray,
+    borderRadius: 4,
   },
   chipSelected: {
-    backgroundColor: brand.coral,
-    borderColor: brand.coral,
+    backgroundColor: brand.ink,
+    borderColor: brand.ink,
+  },
+  chipIcon: {
+    fontSize: 14,
+    color: brand.gray,
+  },
+  chipIconSelected: {
+    color: brand.coral,
   },
   chipText: {
     fontFamily: 'RobotoMono',
-    fontSize: 14,
-    color: brand.black,
+    fontSize: 12,
+    fontWeight: '600',
+    color: brand.ink,
+    letterSpacing: 0.5,
   },
   chipTextSelected: {
-    color: brand.white,
-    fontWeight: '600',
+    color: brand.cream,
+  },
+  selectedIndicator: {
+    position: 'absolute',
+    bottom: -2,
+    left: '50%',
+    marginLeft: -4,
+    width: 8,
+    height: 8,
+    backgroundColor: brand.coral,
+    transform: [{ rotate: '45deg' }],
   },
 });

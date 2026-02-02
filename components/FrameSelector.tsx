@@ -1,6 +1,6 @@
 import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { brand } from '@/constants/Colors';
-import { frames, Frame } from '@/lib/frames';
+import { frames } from '@/lib/frames';
 
 interface FrameSelectorProps {
   selected: string | null;
@@ -10,7 +10,11 @@ interface FrameSelectorProps {
 export default function FrameSelector({ selected, onChange }: FrameSelectorProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>OVERLAYS</Text>
+      <View style={styles.labelRow}>
+        <Text style={styles.label}>OVERLAYS</Text>
+        <View style={styles.labelLine} />
+        <Text style={styles.count}>{frames.length}</Text>
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -19,18 +23,18 @@ export default function FrameSelector({ selected, onChange }: FrameSelectorProps
         <TouchableOpacity
           style={[styles.frameItem, selected === null && styles.frameItemSelected]}
           onPress={() => onChange(null)}
+          activeOpacity={0.7}
         >
           <View style={[styles.thumbnail, selected === null && styles.thumbnailSelected]}>
             <View style={styles.noFrame}>
               <Text style={styles.noFrameText}>∅</Text>
+              <Text style={styles.noFrameLabel}>NONE</Text>
             </View>
           </View>
-          <Text style={[styles.frameName, selected === null && styles.frameNameSelected]}>
-            None
-          </Text>
+          {selected === null && <View style={styles.selectedDot} />}
         </TouchableOpacity>
 
-        {frames.map((frame) => {
+        {frames.slice(0, 20).map((frame) => {
           const isSelected = selected === frame.id;
 
           return (
@@ -38,13 +42,12 @@ export default function FrameSelector({ selected, onChange }: FrameSelectorProps
               key={frame.id}
               style={[styles.frameItem, isSelected && styles.frameItemSelected]}
               onPress={() => onChange(frame.id)}
+              activeOpacity={0.7}
             >
               <View style={[styles.thumbnail, isSelected && styles.thumbnailSelected]}>
                 <Image source={frame.source} style={styles.thumbnailImage} />
               </View>
-              <Text style={[styles.frameName, isSelected && styles.frameNameSelected]} numberOfLines={1}>
-                {frame.name}
-              </Text>
+              {isSelected && <View style={styles.selectedDot} />}
             </TouchableOpacity>
           );
         })}
@@ -55,68 +58,86 @@ export default function FrameSelector({ selected, onChange }: FrameSelectorProps
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingVertical: 14,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 14,
+    gap: 10,
   },
   label: {
     fontFamily: 'RobotoMono',
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '700',
     color: brand.gray,
     letterSpacing: 2,
-    marginBottom: 12,
-    paddingHorizontal: 16,
+  },
+  labelLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: brand.warmGray,
+  },
+  count: {
+    fontFamily: 'RobotoMono',
+    fontSize: 9,
+    color: brand.coral,
+    fontWeight: '600',
   },
   scrollContent: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     gap: 12,
   },
   frameItem: {
     alignItems: 'center',
-    opacity: 0.7,
-    width: 70,
   },
   frameItemSelected: {
-    opacity: 1,
+    // Selected state handled by children
   },
   thumbnail: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
+    width: 64,
+    height: 64,
+    borderRadius: 4,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'transparent',
-    backgroundColor: '#f0f0f0',
+    borderColor: brand.warmGray,
+    backgroundColor: brand.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
   thumbnailSelected: {
     borderColor: brand.coral,
+    borderWidth: 3,
   },
   thumbnailImage: {
-    width: 60,
-    height: 60,
+    width: 52,
+    height: 52,
     resizeMode: 'contain',
   },
   noFrame: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: brand.paper,
     width: '100%',
   },
   noFrameText: {
-    fontSize: 24,
+    fontSize: 18,
     color: brand.gray,
   },
-  frameName: {
+  noFrameLabel: {
     fontFamily: 'RobotoMono',
-    fontSize: 9,
+    fontSize: 7,
     color: brand.gray,
-    marginTop: 6,
-    textAlign: 'center',
+    letterSpacing: 1,
+    marginTop: 2,
   },
-  frameNameSelected: {
-    color: brand.coral,
-    fontWeight: '600',
+  selectedDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: brand.coral,
+    marginTop: 6,
   },
 });

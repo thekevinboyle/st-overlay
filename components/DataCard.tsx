@@ -26,10 +26,12 @@ export default function DataCard({
   const translateX = useSharedValue(position.x);
   const translateY = useSharedValue(position.y);
   const scale = useSharedValue(1);
+  const rotate = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
-      scale.value = withSpring(1.02);
+      scale.value = withSpring(1.05);
+      rotate.value = withSpring(-1);
     })
     .onUpdate((event) => {
       translateX.value = Math.max(
@@ -43,6 +45,7 @@ export default function DataCard({
     })
     .onEnd(() => {
       scale.value = withSpring(1);
+      rotate.value = withSpring(0);
       onPositionChange({ x: translateX.value, y: translateY.value });
     });
 
@@ -51,13 +54,16 @@ export default function DataCard({
       { translateX: translateX.value },
       { translateY: translateY.value },
       { scale: scale.value },
+      { rotate: `${rotate.value}deg` },
     ],
   }));
 
   const isDark = theme === 'dark';
-  const cardBg = isDark ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)';
-  const textColor = isDark ? brand.white : brand.black;
-  const secondaryColor = isDark ? '#aaa' : brand.gray;
+  const cardBg = isDark ? 'rgba(29, 25, 23, 0.95)' : 'rgba(250, 248, 245, 0.96)';
+  const textColor = isDark ? brand.cream : brand.ink;
+  const secondaryColor = isDark ? '#9a9694' : brand.gray;
+  const borderColor = isDark ? 'rgba(250, 248, 245, 0.15)' : 'rgba(45, 41, 38, 0.12)';
+  const accentBg = isDark ? 'rgba(242, 148, 150, 0.2)' : 'rgba(242, 148, 150, 0.15)';
 
   const hasData = data.coffeeName || data.dose || data.brewMethod;
 
@@ -70,62 +76,124 @@ export default function DataCard({
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Animated.View style={[styles.card, { backgroundColor: cardBg }, animatedStyle]}>
+      <Animated.View style={[styles.card, { backgroundColor: cardBg, borderColor }, animatedStyle]}>
+        {/* Top decorative line */}
+        <View style={[styles.topLine, { backgroundColor: brand.coral }]} />
+
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.label, { color: secondaryColor }]}>BREW CARD</Text>
+          <Text style={[styles.divider, { color: secondaryColor }]}>№</Text>
+        </View>
+
+        {/* Coffee name - prominent */}
         {data.coffeeName && (
-          <Text style={[styles.coffeeName, { color: textColor }]} numberOfLines={1}>
-            {data.coffeeName.toUpperCase()}
-          </Text>
-        )}
-        {data.roaster && (
-          <Text style={[styles.roaster, { color: secondaryColor }]} numberOfLines={1}>
-            {data.roaster}
-          </Text>
+          <View style={[styles.nameContainer, { backgroundColor: accentBg }]}>
+            <Text style={[styles.coffeeName, { color: textColor }]} numberOfLines={1}>
+              {data.coffeeName.toUpperCase()}
+            </Text>
+          </View>
         )}
 
-        {(data.dose || data.water || data.ratio) && (
-          <View style={styles.recipeRow}>
-            {data.dose && data.water && (
-              <Text style={[styles.recipe, { color: textColor }]}>
-                {data.dose}g → {data.water}g
+        {/* Roaster & Origin */}
+        {(data.roaster || data.origin) && (
+          <View style={styles.subHeader}>
+            {data.roaster && (
+              <Text style={[styles.roaster, { color: secondaryColor }]}>
+                ↳ {data.roaster}
               </Text>
             )}
-            {data.ratio && (
-              <Text style={[styles.recipe, { color: textColor }]}>
-                {data.ratio}
+            {data.origin && (
+              <Text style={[styles.origin, { color: brand.coral }]}>
+                [{data.origin}]
               </Text>
             )}
           </View>
         )}
 
+        {/* Divider */}
+        <View style={[styles.dottedLine, { borderColor: secondaryColor }]} />
+
+        {/* Recipe Grid */}
+        {(data.dose || data.water || data.ratio) && (
+          <View style={styles.recipeSection}>
+            <View style={styles.recipeRow}>
+              {data.dose && (
+                <View style={styles.recipeItem}>
+                  <Text style={[styles.recipeLabel, { color: secondaryColor }]}>IN</Text>
+                  <Text style={[styles.recipeValue, { color: textColor }]}>{data.dose}g</Text>
+                </View>
+              )}
+              {data.dose && data.water && (
+                <Text style={[styles.recipeArrow, { color: brand.coral }]}>→</Text>
+              )}
+              {data.water && (
+                <View style={styles.recipeItem}>
+                  <Text style={[styles.recipeLabel, { color: secondaryColor }]}>OUT</Text>
+                  <Text style={[styles.recipeValue, { color: textColor }]}>{data.water}g</Text>
+                </View>
+              )}
+              {data.ratio && (
+                <View style={[styles.ratioBox, { borderColor }]}>
+                  <Text style={[styles.ratioText, { color: textColor }]}>{data.ratio}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Brew details */}
         {(data.brewMethod || data.temperature || data.brewTime) && (
-          <Text style={[styles.details, { color: secondaryColor }]}>
-            {[data.brewMethod, data.temperature && `${data.temperature}°C`, data.brewTime]
-              .filter(Boolean)
-              .join('  ')}
-          </Text>
+          <View style={styles.detailsRow}>
+            {data.brewMethod && (
+              <Text style={[styles.detail, { color: textColor }]}>
+                ◉ {data.brewMethod}
+              </Text>
+            )}
+            {data.temperature && (
+              <Text style={[styles.detail, { color: secondaryColor }]}>
+                {data.temperature}°C
+              </Text>
+            )}
+            {data.brewTime && (
+              <Text style={[styles.detail, { color: secondaryColor }]}>
+                ⏱ {data.brewTime}
+              </Text>
+            )}
+          </View>
         )}
 
         {data.grindSize && (
-          <Text style={[styles.details, { color: secondaryColor }]}>
-            {data.grindSize}
+          <Text style={[styles.grind, { color: secondaryColor }]}>
+            ▸ {data.grindSize}
           </Text>
         )}
 
-        {data.flavorNotes.length > 0 && (
-          <Text style={[styles.flavors, { color: brand.coral }]}>
-            {data.flavorNotes.join(', ')}
-          </Text>
+        {/* Flavor notes */}
+        {data.flavorNotes && data.flavorNotes.length > 0 && (
+          <View style={styles.flavorsContainer}>
+            <Text style={[styles.flavorsLabel, { color: secondaryColor }]}>NOTES:</Text>
+            <Text style={[styles.flavors, { color: brand.coral }]}>
+              {data.flavorNotes.join(' · ')}
+            </Text>
+          </View>
         )}
 
+        {/* Rating */}
         {data.rating > 0 && (
-          <Text style={[styles.rating, { color: brand.coral }]}>
-            {renderStars()}
-          </Text>
+          <View style={styles.ratingRow}>
+            <Text style={[styles.rating, { color: brand.coral }]}>
+              {renderStars()}
+            </Text>
+          </View>
         )}
 
-        <Text style={[styles.watermark, { color: secondaryColor }]}>
-          SUPERTHING
-        </Text>
+        {/* Footer */}
+        <View style={[styles.footer, { borderTopColor: borderColor }]}>
+          <Text style={[styles.watermark, { color: secondaryColor }]}>
+            ✦ SUPERTHING ✦
+          </Text>
+        </View>
       </Animated.View>
     </GestureDetector>
   );
@@ -134,55 +202,159 @@ export default function DataCard({
 const styles = StyleSheet.create({
   card: {
     position: 'absolute',
-    padding: 14,
-    borderRadius: 8,
-    minWidth: 180,
+    minWidth: 185,
     maxWidth: 220,
+    borderWidth: 1,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  topLine: {
+    height: 4,
+    width: '100%',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  label: {
+    fontFamily: 'RobotoMono',
+    fontSize: 8,
+    letterSpacing: 2,
+    fontWeight: '600',
+  },
+  divider: {
+    fontFamily: 'RobotoMono',
+    fontSize: 8,
+  },
+  nameContainer: {
+    marginHorizontal: 10,
+    marginVertical: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
   },
   coffeeName: {
     fontFamily: 'RobotoMono',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
-    letterSpacing: 0.5,
-    marginBottom: 2,
+    letterSpacing: 1,
+  },
+  subHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingBottom: 6,
   },
   roaster: {
     fontFamily: 'RobotoMono',
-    fontSize: 11,
-    marginBottom: 10,
+    fontSize: 9,
+  },
+  origin: {
+    fontFamily: 'RobotoMono',
+    fontSize: 8,
+    fontWeight: '600',
+    letterSpacing: 1,
+  },
+  dottedLine: {
+    borderTopWidth: 1,
+    borderStyle: 'dashed',
+    marginHorizontal: 10,
+    marginVertical: 6,
+  },
+  recipeSection: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
   },
   recipeRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'center',
+    gap: 6,
   },
-  recipe: {
+  recipeItem: {
+    alignItems: 'center',
+  },
+  recipeLabel: {
+    fontFamily: 'RobotoMono',
+    fontSize: 7,
+    letterSpacing: 1,
+  },
+  recipeValue: {
+    fontFamily: 'RobotoMono',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  recipeArrow: {
     fontFamily: 'RobotoMono',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  details: {
+  ratioBox: {
+    marginLeft: 'auto',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  ratioText: {
     fontFamily: 'RobotoMono',
     fontSize: 11,
+    fontWeight: '700',
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  detail: {
+    fontFamily: 'RobotoMono',
+    fontSize: 9,
+    fontWeight: '600',
+  },
+  grind: {
+    fontFamily: 'RobotoMono',
+    fontSize: 9,
+    paddingHorizontal: 12,
+    paddingBottom: 4,
+  },
+  flavorsContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  flavorsLabel: {
+    fontFamily: 'RobotoMono',
+    fontSize: 7,
+    letterSpacing: 1,
     marginBottom: 2,
   },
   flavors: {
     fontFamily: 'RobotoMono',
-    fontSize: 11,
-    marginTop: 8,
+    fontSize: 9,
+    fontWeight: '600',
     fontStyle: 'italic',
+  },
+  ratingRow: {
+    paddingHorizontal: 12,
+    paddingBottom: 6,
   },
   rating: {
     fontFamily: 'RobotoMono',
-    fontSize: 12,
-    marginTop: 6,
+    fontSize: 11,
     letterSpacing: 2,
+  },
+  footer: {
+    borderTopWidth: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
   },
   watermark: {
     fontFamily: 'RobotoMono',
-    fontSize: 8,
-    letterSpacing: 2,
-    marginTop: 10,
-    opacity: 0.5,
+    fontSize: 7,
+    letterSpacing: 3,
+    opacity: 0.6,
   },
 });
