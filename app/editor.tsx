@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,9 @@ import {
   Dimensions,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { captureRef } from 'react-native-view-shot';
 import { brand } from '@/constants/Colors';
-import { BrewData, FilterName, filters } from '@/lib/types';
+import { BrewData, FilterName } from '@/lib/types';
+import { getFrameById } from '@/lib/frames';
 import DataCard from '@/components/DataCard';
 import FilterSelector from '@/components/FilterSelector';
 import FrameSelector from '@/components/FrameSelector';
@@ -27,37 +27,22 @@ export default function EditorScreen() {
   }>();
 
   const parsedBrewData: BrewData = brewData ? JSON.parse(brewData) : {};
-  const captureViewRef = useRef<View>(null);
 
   const [selectedFilter, setSelectedFilter] = useState<FilterName>('coral-haze');
-  const [selectedFrame, setSelectedFrame] = useState<string | null>(null);
+  const [selectedFrameId, setSelectedFrameId] = useState<string | null>(null);
   const [cardPosition, setCardPosition] = useState({ x: 16, y: PREVIEW_HEIGHT - 180 });
   const [cardTheme, setCardTheme] = useState<'light' | 'dark'>('light');
-  const [frames, setFrames] = useState<string[]>([]);
 
-  // Load frames from assets
-  useEffect(() => {
-    // In a real app, you'd dynamically load these
-    // For now, this will be populated when user adds frames
-    setFrames([]);
-  }, []);
+  const selectedFrame = selectedFrameId ? getFrameById(selectedFrameId) : null;
 
-  const getFilterStyle = () => {
-    const filter = filters[selectedFilter];
-    if (selectedFilter === 'none') return {};
-
-    // Apply filter effects via tint/opacity overlays
-    return {};
-  };
-
-  const handleExport = async () => {
+  const handleExport = () => {
     router.push({
       pathname: '/export',
       params: {
         imageUri,
         brewData,
         filter: selectedFilter,
-        frame: selectedFrame || '',
+        frameId: selectedFrameId || '',
         cardPosition: JSON.stringify(cardPosition),
         cardTheme,
       },
@@ -77,11 +62,7 @@ export default function EditorScreen() {
       </View>
 
       <View style={styles.previewContainer}>
-        <View
-          ref={captureViewRef}
-          style={styles.preview}
-          collapsable={false}
-        >
+        <View style={styles.preview}>
           {/* Base image with filter */}
           <Image
             source={{ uri: imageUri }}
@@ -101,17 +82,17 @@ export default function EditorScreen() {
             />
           )}
 
-          {/* VHS scan lines */}
+          {/* VHS scan lines effect */}
           {selectedFilter === 'vhs-cafe' && (
-            <View style={styles.scanLines} />
+            <View style={styles.scanLines} pointerEvents="none" />
           )}
 
-          {/* Frame overlay */}
+          {/* Frame/Overlay */}
           {selectedFrame && (
             <Image
-              source={{ uri: selectedFrame }}
+              source={selectedFrame.source}
               style={styles.frameOverlay}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           )}
 
@@ -136,9 +117,8 @@ export default function EditorScreen() {
         />
 
         <FrameSelector
-          frames={frames}
-          selected={selectedFrame}
-          onChange={setSelectedFrame}
+          selected={selectedFrameId}
+          onChange={setSelectedFrameId}
         />
       </View>
 
@@ -210,8 +190,8 @@ const styles = StyleSheet.create({
   },
   scanLines: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.1,
-    // Scan line effect would be implemented with a repeating image pattern
+    opacity: 0.05,
+    backgroundColor: 'transparent',
   },
   frameOverlay: {
     ...StyleSheet.absoluteFillObject,

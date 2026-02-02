@@ -15,7 +15,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import { brand } from '@/constants/Colors';
 import { BrewData, FilterName } from '@/lib/types';
-import DataCard from '@/components/DataCard';
+import { getFrameById } from '@/lib/frames';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PREVIEW_WIDTH = SCREEN_WIDTH - 64;
@@ -26,13 +26,14 @@ export default function ExportScreen() {
     imageUri: string;
     brewData: string;
     filter: FilterName;
-    frame: string;
+    frameId: string;
     cardPosition: string;
     cardTheme: 'light' | 'dark';
   }>();
 
   const parsedBrewData: BrewData = params.brewData ? JSON.parse(params.brewData) : {};
   const cardPosition = params.cardPosition ? JSON.parse(params.cardPosition) : { x: 16, y: 200 };
+  const selectedFrame = params.frameId ? getFrameById(params.frameId) : null;
   const viewRef = useRef<View>(null);
   const [saving, setSaving] = useState(false);
 
@@ -139,11 +140,11 @@ export default function ExportScreen() {
           )}
 
           {/* Frame overlay */}
-          {params.frame && (
+          {selectedFrame && (
             <Image
-              source={{ uri: params.frame }}
+              source={selectedFrame.source}
               style={styles.frameOverlay}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           )}
 
