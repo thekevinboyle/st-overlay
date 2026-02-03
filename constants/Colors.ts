@@ -29,6 +29,67 @@ export const brand = {
   shadowDark: 'rgba(45, 41, 38, 0.25)',
 };
 
+// Y2K Tech-Optimism "Brew Station" palette
+// Monochrome/silver + coral accent
+export const station = {
+  // Surfaces - metallic silver gradient feel
+  surfaceLight: '#E8E8ED',
+  surfaceMid: '#C4C4CC',
+  surfaceDark: '#2A2A2E',
+
+  // Accent - coral from brand
+  accent: '#F29496',
+  accentGlow: 'rgba(242, 148, 150, 0.3)',
+  accentMuted: 'rgba(242, 148, 150, 0.15)',
+
+  // Text
+  textPrimary: '#1A1A1C',
+  textSecondary: '#6B6B73',
+  textMuted: '#9A9AA0',
+
+  // Highlights & effects
+  white: '#FFFFFF',
+  glossHighlight: 'rgba(255, 255, 255, 0.8)',
+  glossSubtle: 'rgba(255, 255, 255, 0.4)',
+
+  // Shadows for skeuomorphic depth
+  shadowColor: '#A0A0A8',
+  shadowDark: 'rgba(0, 0, 0, 0.15)',
+  shadowDeep: 'rgba(0, 0, 0, 0.25)',
+
+  // LCD-style display
+  lcdBg: '#1E1E22',
+  lcdText: '#C8FFD4',
+
+  // Status indicators
+  ledOff: '#4A4A50',
+  ledOn: '#F29496',
+};
+
+// Glossy button effect presets for React Native
+export const glossy = {
+  rest: {
+    // For LinearGradient: colors={['#F0F0F5', '#D8D8E0']}
+    gradientStart: '#F0F0F5',
+    gradientEnd: '#D8D8E0',
+    borderTopColor: 'rgba(255,255,255,0.8)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    shadowColor: '#A0A0A8',
+  },
+  pressed: {
+    gradientStart: '#D8D8E0',
+    gradientEnd: '#E8E8ED',
+    shadowOffset: { width: 0, height: 1 },
+  },
+  coral: {
+    gradientStart: '#F5A0A2',
+    gradientEnd: '#E88A8C',
+    shadowColor: '#C07072',
+  },
+};
+
 // Extended theme
 export const theme = {
   // Backgrounds

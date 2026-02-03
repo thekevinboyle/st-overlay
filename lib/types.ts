@@ -78,3 +78,33 @@ export const filters: Record<FilterName, FilterConfig> = {
     grain: 0.2,
   },
 };
+
+// Brew Station types for skeuomorphic controls
+
+export type StationTab = 'data' | 'style' | 'frame' | 'export';
+
+export interface SegmentOption {
+  id: string;
+  label: string;
+  icon?: string;
+}
+
+// Brew method options for segment buttons
+export const BREW_METHODS: SegmentOption[] = [
+  { id: 'v60', label: 'V60', icon: '▽' },
+  { id: 'aeropress', label: 'AERO', icon: '◎' },
+  { id: 'espresso', label: 'ESPR', icon: '◉' },
+  { id: 'chemex', label: 'CHEM', icon: '◇' },
+  { id: 'french-press', label: 'FRNC', icon: '▣' },
+  { id: 'other', label: 'OTHER', icon: '○' },
+];
+
+// Grind size options
+export const GRIND_SIZES: SegmentOption[] = [
+  { id: 'extra-fine', label: 'X-FINE' },
+  { id: 'fine', label: 'FINE' },
+  { id: 'medium-fine', label: 'MED-F' },
+  { id: 'medium', label: 'MED' },
+  { id: 'medium-coarse', label: 'MED-C' },
+  { id: 'coarse', label: 'COARSE' },
+];
