@@ -1,80 +1,27 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  Animated,
-  Dimensions,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { brand, theme } from '@/constants/Colors';
+import { station } from '@/constants/Colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// Layout components
+import PhotoBezel from '@/components/layout/PhotoBezel';
+import TabBar from '@/components/layout/TabBar';
 
-export default function HomeScreen() {
+export default function LaunchScreen() {
   const [loading, setLoading] = useState(false);
   const [pressed, setPressed] = useState<'camera' | 'library' | null>(null);
 
-  // Animations
-  const floatAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const fadeIn = useRef(new Animated.Value(0)).current;
-  const slideUp = useRef(new Animated.Value(30)).current;
-
-  useEffect(() => {
-    // Floating animation for the icon
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -8,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Gentle pulse
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.02,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Entry animations
-    Animated.parallel([
-      Animated.timing(fadeIn, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideUp, {
-        toValue: 0,
-        tension: 50,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
-
   const pickImage = async (useCamera: boolean) => {
     setLoading(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
       const options: ImagePicker.ImagePickerOptions = {
@@ -89,348 +36,326 @@ export default function HomeScreen() {
         : await ImagePicker.launchImageLibraryAsync(options);
 
       if (!result.canceled && result.assets[0]) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.push({
-          pathname: '/data-input',
+          pathname: '/station',
           params: { imageUri: result.assets[0].uri },
         });
       }
     } catch (error) {
       console.error('Error picking image:', error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handlePressIn = (button: 'camera' | 'library') => {
+    setPressed(button);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Decorative corner elements */}
-      <View style={styles.cornerTL}>
-        <Text style={styles.cornerText}>✦</Text>
-      </View>
-      <View style={styles.cornerTR}>
-        <Text style={styles.cornerText}>✦</Text>
-      </View>
-
-      <Animated.View
-        style={[
-          styles.content,
-          {
-            opacity: fadeIn,
-            transform: [{ translateY: slideUp }],
-          },
-        ]}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoSmall}>✧ BREW WITH ✧</Text>
-            <Text style={styles.logo}>SUPERTHING</Text>
-            <View style={styles.underline} />
-          </View>
-        </View>
-
-        {/* Center illustration area */}
-        <View style={styles.illustrationArea}>
-          <Animated.View
-            style={[
-              styles.iconOuter,
-              {
-                transform: [
-                  { translateY: floatAnim },
-                  { scale: pulseAnim },
-                ],
-              },
-            ]}
-          >
-            <View style={styles.iconMiddle}>
-              <View style={styles.iconInner}>
-                <Text style={styles.coffeeIcon}>☕</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          {/* Brand Nameplate */}
+          <View style={styles.nameplateContainer}>
+            <View style={styles.nameplate}>
+              <View style={styles.nameplateInner}>
+                <Text style={styles.brandSmall}>SUPERTHING</Text>
+                <Text style={styles.brandLarge}>BREW STATION</Text>
               </View>
+              <View style={styles.nameplateShine} />
             </View>
-            {/* Decorative rings */}
-            <View style={styles.ring1} />
-            <View style={styles.ring2} />
-          </Animated.View>
+            <View style={styles.modelInfo}>
+              <View style={styles.modelDot} />
+              <Text style={styles.modelText}>MODEL ST-2026</Text>
+            </View>
+          </View>
 
-          <View style={styles.taglineContainer}>
-            <Text style={styles.tagline}>CAPTURE YOUR BREW</Text>
-            <Text style={styles.taglineSub}>share the recipe</Text>
+          {/* Photo Bezel - Shows "NO INPUT" state */}
+          <View style={styles.bezelSection}>
+            <PhotoBezel
+              imageUri={null}
+              filter="none"
+              frameId={null}
+              aspectRatio={4/3}
+            />
+          </View>
+
+          {/* Source Selector Section */}
+          <View style={styles.sourceSection}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionLine} />
+              <Text style={styles.sectionLabel}>SELECT SOURCE</Text>
+              <View style={styles.sectionLine} />
+            </View>
+
+            {/* Source Buttons */}
+            <View style={styles.buttonGrid}>
+              {/* Camera Button */}
+              <TouchableOpacity
+                style={[
+                  styles.sourceButton,
+                  pressed === 'camera' && styles.sourceButtonPressed,
+                ]}
+                onPressIn={() => handlePressIn('camera')}
+                onPressOut={() => setPressed(null)}
+                onPress={() => pickImage(true)}
+                disabled={loading}
+                activeOpacity={1}
+              >
+                <View style={[
+                  styles.sourceButtonInner,
+                  pressed === 'camera' && styles.sourceButtonInnerPressed,
+                ]}>
+                  <Text style={styles.sourceIcon}>◉</Text>
+                  <Text style={styles.sourceLabel}>CAMERA</Text>
+                </View>
+                {pressed !== 'camera' && <View style={styles.sourceButtonShadow} />}
+              </TouchableOpacity>
+
+              {/* Library Button */}
+              <TouchableOpacity
+                style={[
+                  styles.sourceButton,
+                  pressed === 'library' && styles.sourceButtonPressed,
+                ]}
+                onPressIn={() => handlePressIn('library')}
+                onPressOut={() => setPressed(null)}
+                onPress={() => pickImage(false)}
+                disabled={loading}
+                activeOpacity={1}
+              >
+                <View style={[
+                  styles.sourceButtonInner,
+                  pressed === 'library' && styles.sourceButtonInnerPressed,
+                ]}>
+                  <Text style={styles.sourceIcon}>▣</Text>
+                  <Text style={styles.sourceLabel}>LIBRARY</Text>
+                </View>
+                {pressed !== 'library' && <View style={styles.sourceButtonShadow} />}
+              </TouchableOpacity>
+            </View>
+
+            {/* Loading indicator */}
+            {loading && (
+              <View style={styles.loadingIndicator}>
+                <View style={styles.loadingDot} />
+                <Text style={styles.loadingText}>LOADING...</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Tab Bar - Disabled State */}
+          <View style={styles.tabBarContainer}>
+            <TabBar
+              activeTab="data"
+              onChange={() => {}}
+              disabled={true}
+            />
           </View>
         </View>
-
-        {/* Instruction */}
-        <View style={styles.instructionContainer}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.instruction}>
-            snap a photo or pick from library
-          </Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        {/* Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[
-              styles.primaryButton,
-              pressed === 'camera' && styles.buttonPressed,
-            ]}
-            onPressIn={() => setPressed('camera')}
-            onPressOut={() => setPressed(null)}
-            onPress={() => pickImage(true)}
-            disabled={loading}
-            activeOpacity={1}
-          >
-            <View style={styles.buttonInner}>
-              <Text style={styles.buttonIcon}>📸</Text>
-              <Text style={styles.primaryButtonText}>
-                {loading ? 'LOADING...' : 'TAKE PHOTO'}
-              </Text>
-            </View>
-            <View style={styles.buttonShadow} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.secondaryButton,
-              pressed === 'library' && styles.secondaryButtonPressed,
-            ]}
-            onPressIn={() => setPressed('library')}
-            onPressOut={() => setPressed(null)}
-            onPress={() => pickImage(false)}
-            disabled={loading}
-            activeOpacity={1}
-          >
-            <Text style={styles.secondaryButtonText}>
-              ↳ CHOOSE FROM LIBRARY
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-
-      {/* Bottom decorative */}
-      <View style={styles.bottomDecor}>
-        <Text style={styles.bottomText}>
-          ─── ☕ ─── specialty recipes ─── ☕ ───
-        </Text>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: station.surfaceMid,
+  },
+  outerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
   container: {
-    flex: 1,
-    backgroundColor: brand.cream,
-  },
-  cornerTL: {
-    position: 'absolute',
-    top: 60,
-    left: 24,
-  },
-  cornerTR: {
-    position: 'absolute',
-    top: 60,
-    right: 24,
-  },
-  cornerText: {
-    fontFamily: 'RobotoMono',
-    fontSize: 20,
-    color: brand.coral,
-    opacity: 0.6,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 28,
-  },
-  header: {
-    paddingTop: 80,
-    alignItems: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-  },
-  logoSmall: {
-    fontFamily: 'RobotoMono',
-    fontSize: 10,
-    color: brand.gray,
-    letterSpacing: 4,
-    marginBottom: 4,
-  },
-  logo: {
-    fontFamily: 'RobotoMono',
-    fontSize: 32,
-    fontWeight: '700',
-    color: brand.ink,
-    letterSpacing: 6,
-  },
-  underline: {
-    width: 60,
-    height: 3,
-    backgroundColor: brand.coral,
-    marginTop: 8,
-    borderRadius: 2,
-  },
-  illustrationArea: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconOuter: {
-    width: 160,
-    height: 160,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconMiddle: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: brand.peach,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...theme.shadow.lg,
-  },
-  iconInner: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: brand.coral,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: brand.white,
-  },
-  coffeeIcon: {
-    fontSize: 44,
-  },
-  ring1: {
-    position: 'absolute',
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: station.surfaceLight,
+    borderRadius: 20,
+    overflow: 'hidden',
+    // Card shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    elevation: 12,
+    // Subtle border
     borderWidth: 1,
-    borderColor: brand.coral,
-    borderStyle: 'dashed',
-    opacity: 0.3,
+    borderColor: 'rgba(255,255,255,0.6)',
   },
-  ring2: {
-    position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    borderWidth: 1,
-    borderColor: brand.peach,
-    borderStyle: 'dotted',
-    opacity: 0.2,
-  },
-  taglineContainer: {
+  nameplateContainer: {
     alignItems: 'center',
-    marginTop: 32,
+    paddingTop: 16,
+    paddingBottom: 8,
+    backgroundColor: station.surfaceLight,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
-  tagline: {
+  nameplate: {
+    backgroundColor: station.surfaceMid,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    position: 'relative',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderTopColor: station.glossSubtle,
+    borderLeftColor: 'rgba(255,255,255,0.2)',
+    borderRightColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: 'rgba(0,0,0,0.15)',
+  },
+  nameplateInner: {
+    alignItems: 'center',
+  },
+  nameplateShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  brandSmall: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 9,
+    color: station.textMuted,
+    letterSpacing: 3,
+  },
+  brandLarge: {
     fontFamily: 'RobotoMono',
     fontSize: 18,
     fontWeight: '700',
-    color: brand.ink,
+    color: station.textPrimary,
     letterSpacing: 3,
+    marginTop: 2,
   },
-  taglineSub: {
-    fontFamily: 'RobotoMono',
-    fontSize: 12,
-    color: brand.gray,
-    letterSpacing: 2,
-    marginTop: 4,
-  },
-  instructionContainer: {
+  modelInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    marginBottom: 24,
+    gap: 6,
+    marginTop: 6,
   },
-  dividerLine: {
-    width: 40,
-    height: 1,
-    backgroundColor: brand.warmGray,
+  modelDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: station.accent,
+    shadowColor: station.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
   },
-  instruction: {
+  modelText: {
     fontFamily: 'RobotoMono',
-    fontSize: 11,
-    color: brand.gray,
-    letterSpacing: 1,
-    textTransform: 'lowercase',
+    fontSize: 9,
+    color: station.textMuted,
+    letterSpacing: 2,
   },
-  buttonContainer: {
-    gap: 16,
-    paddingBottom: 20,
+  bezelSection: {
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: station.surfaceDark,
   },
-  primaryButton: {
+  sourceSection: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 16,
+  },
+  sectionLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: station.surfaceMid,
+  },
+  sectionLabel: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 10,
+    color: station.textSecondary,
+    letterSpacing: 2,
+  },
+  buttonGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  sourceButton: {
+    flex: 1,
     position: 'relative',
   },
-  buttonInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    backgroundColor: brand.ink,
-    paddingVertical: 20,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: brand.ink,
-    transform: [{ translateY: -4 }],
+  sourceButtonPressed: {
+    transform: [{ translateY: 4 }],
   },
-  buttonShadow: {
+  sourceButtonInner: {
+    backgroundColor: station.surfaceDark,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    gap: 6,
+    transform: [{ translateY: -4 }],
+    borderWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.12)',
+    borderLeftColor: 'rgba(255,255,255,0.06)',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+  },
+  sourceButtonInnerPressed: {
+    transform: [{ translateY: 0 }],
+    borderTopColor: 'transparent',
+  },
+  sourceButtonShadow: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     height: '100%',
-    backgroundColor: brand.espresso,
-    borderRadius: 4,
+    backgroundColor: '#1A1A1C',
+    borderRadius: 10,
     zIndex: -1,
   },
-  buttonPressed: {
-    transform: [{ translateY: 2 }],
+  sourceIcon: {
+    fontSize: 28,
+    color: station.accent,
   },
-  buttonIcon: {
-    fontSize: 18,
-  },
-  primaryButtonText: {
-    fontFamily: 'RobotoMono',
-    fontSize: 15,
-    fontWeight: '700',
-    color: brand.cream,
+  sourceLabel: {
+    fontFamily: 'Inter-Bold',
+    fontSize: 12,
+    color: station.white,
     letterSpacing: 2,
   },
-  secondaryButton: {
-    paddingVertical: 16,
+  loadingIndicator: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: brand.warmGray,
-    borderRadius: 4,
-    borderStyle: 'dashed',
-    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
   },
-  secondaryButtonPressed: {
-    backgroundColor: brand.warmGray,
-    borderStyle: 'solid',
+  loadingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: station.accent,
   },
-  secondaryButtonText: {
+  loadingText: {
     fontFamily: 'RobotoMono',
-    fontSize: 13,
-    fontWeight: '600',
-    color: brand.gray,
-    letterSpacing: 1,
+    fontSize: 11,
+    color: station.accent,
+    letterSpacing: 2,
   },
-  bottomDecor: {
-    paddingBottom: 24,
-    alignItems: 'center',
-  },
-  bottomText: {
-    fontFamily: 'RobotoMono',
-    fontSize: 10,
-    color: brand.warmGray,
-    letterSpacing: 1,
+  tabBarContainer: {
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+    paddingTop: 8,
   },
 });

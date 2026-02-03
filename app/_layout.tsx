@@ -1,4 +1,10 @@
 import { useFonts } from 'expo-font';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -12,6 +18,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     'RobotoMono': require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'Inter': Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
   });
 
   useEffect(() => {
@@ -33,13 +43,11 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#000' },
+          contentStyle: { backgroundColor: '#E8E8ED' },
         }}
       >
         <Stack.Screen name="index" />
-        <Stack.Screen name="data-input" />
-        <Stack.Screen name="editor" />
-        <Stack.Screen name="export" />
+        <Stack.Screen name="station" />
       </Stack>
     </GestureHandlerRootView>
   );

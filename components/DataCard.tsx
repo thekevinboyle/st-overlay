@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { brand } from '@/constants/Colors';
+import { station } from '@/constants/Colors';
 import { BrewData } from '@/lib/types';
 
 interface DataCardProps {
@@ -59,11 +59,11 @@ export default function DataCard({
   }));
 
   const isDark = theme === 'dark';
-  const cardBg = isDark ? 'rgba(29, 25, 23, 0.95)' : 'rgba(250, 248, 245, 0.96)';
-  const textColor = isDark ? brand.cream : brand.ink;
-  const secondaryColor = isDark ? '#9a9694' : brand.gray;
-  const borderColor = isDark ? 'rgba(250, 248, 245, 0.15)' : 'rgba(45, 41, 38, 0.12)';
-  const accentBg = isDark ? 'rgba(242, 148, 150, 0.2)' : 'rgba(242, 148, 150, 0.15)';
+  const cardBg = isDark ? 'rgba(42, 42, 46, 0.95)' : 'rgba(232, 232, 237, 0.96)';
+  const textColor = isDark ? station.white : station.textPrimary;
+  const secondaryColor = isDark ? station.textMuted : station.textSecondary;
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)';
+  const accentBg = isDark ? 'rgba(242, 148, 150, 0.25)' : 'rgba(242, 148, 150, 0.18)';
 
   const hasData = data.coffeeName || data.dose || data.brewMethod;
 
@@ -78,7 +78,7 @@ export default function DataCard({
     <GestureDetector gesture={panGesture}>
       <Animated.View style={[styles.card, { backgroundColor: cardBg, borderColor }, animatedStyle]}>
         {/* Top decorative line */}
-        <View style={[styles.topLine, { backgroundColor: brand.coral }]} />
+        <View style={[styles.topLine, { backgroundColor: station.accent }]} />
 
         {/* Header */}
         <View style={styles.header}>
@@ -104,7 +104,7 @@ export default function DataCard({
               </Text>
             )}
             {data.origin && (
-              <Text style={[styles.origin, { color: brand.coral }]}>
+              <Text style={[styles.origin, { color: station.accent }]}>
                 [{data.origin}]
               </Text>
             )}
@@ -125,7 +125,7 @@ export default function DataCard({
                 </View>
               )}
               {data.dose && data.water && (
-                <Text style={[styles.recipeArrow, { color: brand.coral }]}>→</Text>
+                <Text style={[styles.recipeArrow, { color: station.accent }]}>→</Text>
               )}
               {data.water && (
                 <View style={styles.recipeItem}>
@@ -173,7 +173,7 @@ export default function DataCard({
         {data.flavorNotes && data.flavorNotes.length > 0 && (
           <View style={styles.flavorsContainer}>
             <Text style={[styles.flavorsLabel, { color: secondaryColor }]}>NOTES:</Text>
-            <Text style={[styles.flavors, { color: brand.coral }]}>
+            <Text style={[styles.flavors, { color: station.accent }]}>
               {data.flavorNotes.join(' · ')}
             </Text>
           </View>
@@ -182,7 +182,7 @@ export default function DataCard({
         {/* Rating */}
         {data.rating > 0 && (
           <View style={styles.ratingRow}>
-            <Text style={[styles.rating, { color: brand.coral }]}>
+            <Text style={[styles.rating, { color: station.accent }]}>
               {renderStars()}
             </Text>
           </View>
